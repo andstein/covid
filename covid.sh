@@ -18,4 +18,4 @@ $PYTHON update.py
 npm install
 npm run build
 
-cp -R build/* $DST/
+cp -R public/* $DST/
