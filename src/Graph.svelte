@@ -90,7 +90,7 @@
     d3.select(svg)
       .on('mousemove', () => {
         const [mx, my] = d3.mouse(svg)
-        const [t, idx] = times[times_bisect(x.invert(mx), 0, times.length - 1)]
+        const [t, idx] = times[times_bisect(x.invert(mx - left), 0, times.length - 1)]
         date_index = idx
         console.log(date_index)
       })
