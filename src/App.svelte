@@ -5,6 +5,7 @@
 
   let graphs = []
   let normalize = false
+  let date_index = bydate.length - 1
 
 </script>
 
@@ -22,9 +23,9 @@
   </p>
 
   <div class="nonessential">
-    <Graph {graphs} {normalize} />
+    <Graph {graphs} {normalize} bind:date_index />
   </div>
-  <Table bind:graphs bind:normalize />
+  <Table bind:graphs bind:normalize bind:date_index />
 </main>
 
 <style>

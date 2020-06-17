@@ -5,10 +5,10 @@
 
   export let graphs = []
   export let normalize = false
+  export let date_index
   let filter = ''
 
   const dates = sorted(bydate.map(row => row.date))
-  let date_index = dates.length - 1
   let sortby = 'confirmed'
   let sortmul = -1
   let digits = 3
@@ -140,7 +140,7 @@
   }
 
   function nicenumber(col, number, normalize) {
-    if (number === null) {
+    if (number === null || 'undefined' === typeof number) {
       return '-'
     }
     if (alwayspct.has(col) || (normalize && !neverpct.has(col))) {

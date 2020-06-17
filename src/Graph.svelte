@@ -12,8 +12,21 @@
   import { derivers, parseDate } from './utils.js'
   import bydate from '../output/bydate.json'
 
+  export let date_index
+
   const date0 = parseDate(bydate[0].date)
   const date1 = parseDate(bydate[bydate.length - 1].date)
+
+  const times = bydate.map((d, idx) => [new Date(d.date).getTime(), idx])
+  times.sort()
+  const times_bisect = (t, i, j) => {
+    if (j - i < 2) {
+      return t - times[i][0] < times[j][0] - t ? i : j
+    }
+    const ij = (i + j) >> 1
+    return t <= times[ij][0] ? times_bisect(t, i, ij) : times_bisect(t, ij, j)
+  }
+
 
   export let graphs = []
   export let normalize = false
@@ -25,6 +38,8 @@
   $: min = normalize ? 1e-5 : 1
   $: x = d3.scaleTime().domain([date0, date1]).range([0, width])
   $: y = d3.scaleLog().domain([min, max]).range([height, 0])
+  $: dx = x(new Date(2020, 0, 1)) - x(new Date(2020, 0, 0))
+  $: cursx = x(new Date(bydate[date_index].date))
 
   let width = 700
   let height = 300
@@ -37,6 +52,7 @@
   let grid
   let xaxis
   let yaxis
+  let curs
 
   function or_zero(x) {
     return Number.isFinite(x) ? x : 0
@@ -71,6 +87,15 @@
       d3.axisLeft(y).ticks(ticks, normalize ? '.3f' : ',.0f')
     )
     if (!y.ticks(ticks).length) return
+    d3.select(svg)
+      .on('mousemove', () => {
+        const [mx, my] = d3.mouse(svg)
+        const [t, idx] = times[times_bisect(x.invert(mx), 0, times.length - 1)]
+        date_index = idx
+        console.log(date_index)
+      })
+      // .on('mouseleave', () => curs.setAttribute('opacity', 0))
+      // .on('mouseenter', () => curs.setAttribute('opacity', 1))
     return  // should adjust when axis adjusts ...
     d3.select(grid)
       .selectAll('line.horizontalGrid')
@@ -97,6 +122,7 @@
     </clipPath>
   </defs>
   <g transform="translate({left}, {top})">
+    <rect bind:this={curs} x={cursx - dx/2} height={height} width={dx} fill="#eee" clip-path="url(#clip)" />
     <g bind:this={grid} />
     {#each graphs as graph, i}
       <Line {...graph} values={data[i]} {x} {y} />

@@ -1,3 +1,5 @@
+// const { append } = require("svelte/internal");
+
 const pd = { top: 5, left: 50, right: 15, bottom: 30 };
 const width = 500;
 const height = 300;
@@ -81,7 +83,7 @@ const f = (d) => {
     .attr('y2', 0)
     .attr('stroke', '#888')
     .attr('stroke-width', '1px')
-  // .attr('opacity', 0)
+    .attr('opacity', 0)
 
   const lx = g
     .append('line')
@@ -91,18 +93,48 @@ const f = (d) => {
     .attr('y2', height)
     .attr('stroke', '#888')
     .attr('stroke-width', '1px')
-    // .attr('opacity', 0)
+    .attr('opacity', 0)
+
+  const curs = g
+   .append('rect')
+   .attr('width', x(new Date(2020, 0, 1)) - x(new Date(2020, 0, 0)))
+   .attr('height', height)
+   .attr('fill', '#ddd')
+
+  const times = d.map(d => new Date(d.date).getTime())
+  times.sort()
+  const quant = date => {
+    const f = (t, i, j) => {
+      if (j - i < 2) {
+        return t - times[i] < times[j] - t ? i : j
+      }
+      const ij = (i + j) >> 1
+      return t <= times[ij] ? f(t, i, ij) : f(t, ij, j)
+    }
+    return new Date(times[f(date.getTime(), 0, times.length - 1)])
+  }
 
   svg
     .on('mousemove', () => {
-      const [x, y] = d3.mouse(g.node())
+      const [mx, my] = d3.mouse(g.node())
+      const dx = x(new Date(2020, 0, 1)) - x(new Date(2020, 0, 0))
+      const mxq = x(quant(x.invert(mx)))
+      curs
+        .attr('x', mxq - dx / 2)
+        .attr('width', dx)
       ly
-        .attr('y1', y)
-        .attr('y2', y)
+        .attr('y1', my)
+        .attr('y2', my)
       lx
-        .attr('x1', x)
-        .attr('x2', x)
+        .attr('x1', mx)
+        .attr('x2', mx)
     })
+    // .on('mousein', () => {
+    //   curs.attr('opacity', 1)
+    // })
+    // .on('mouseout', () => {
+    //   curs.attr('opacity', 0)
+    // })
 
   const line = g.append('path')
     .attr('clip-path', 'url(#clip)')
