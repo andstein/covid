@@ -6,7 +6,7 @@ import os
 import pickle
 import sys
 
-limit = None
+limit = 1e10
 if len(sys.argv) > 1:
     limit = int(sys.argv[1])
     print(f'only generating data for last {limit} days')
@@ -176,9 +176,14 @@ data = [
     dict(date=date, data=d)
     for date, d in sorted(data.items())
 ]
+for prev, cur in zip(data[:-1], data[1:]):
+    prev, cur = prev['data'], cur['data']
+    for k in cur:
+        if k not in prev:
+            continue
+        for col, dcol in (('confirmed', 'new'),):
+            cur[k][dcol] = cur[k][col] - prev[k][col]
 print('')
-if limit is not None:
-    data = data[-limit:]
 json.dump(data, open('output/bydate.json', 'w'), indent=2)
 
 keys1 = set(pop.keys())

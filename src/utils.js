@@ -6,6 +6,6 @@ export const parseDate = s => {
 
 export const derivers = {
   fatality: row => row.confirmed && row.deaths / row.confirmed,
-  fatality2: row => row.recovered + row.deaths && row.deaths / (
+  fatality2: row => (row.recovered + row.deaths) && row.deaths / (
     row.recovered + row.deaths),
 }

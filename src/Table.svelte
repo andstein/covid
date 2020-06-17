@@ -22,6 +22,7 @@
 
   const srccols = [
     'confirmed',
+    'new',
     'active',
     'recovered',
     'deaths',
@@ -29,7 +30,7 @@
   ]
   const derived = [
     'fatality',
-    'fatality2',
+//    'fatality2',
   ]
   const alwayspct = new Set([
     'fatality',

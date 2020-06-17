@@ -10,7 +10,6 @@ African, Caribbean and Pacific (ACP) Group of States
 American Samoa
 Andean Community
 Anguilla
-Aruba
 Asia
 Asia-Pacific Economic Cooperation (APEC)
 Asia-Pacific Group
@@ -31,12 +30,10 @@ Bonaire, Sint Eustatius and Saba
 British Virgin Islands
 Caribbean
 Caribbean Community and Common Market (CARICOM)
-Cayman Islands
 Central America
 Central Asia
 Central European Free Trade Agreement (CEFTA)
 Central and Southern Asia
-Channel Islands
 China (and dependencies)
 China, Macao SAR
 Commonwealth of Independent States (CIS)
@@ -118,22 +115,15 @@ European Free Trade Agreement (EFTA)
 European Union (EU: 15)
 European Union (EU: 28)
 Falkland Islands (Malvinas)
-Faroe Islands
 France (and dependencies)
-French Guiana
 French Polynesia
-Gibraltar
 Greater Arab Free Trade Area (GAFTA)
-Greenland
 Group of 77 (G77)
 Group of Eight (G8)
 Group of Seven (G7)
 Group of Twenty (G20) - member states
-Guadeloupe
-Guam
 Gulf Cooperation Council (GCC)
 High-income countries
-Hong Kong
 Isle of Man
 Kiribati
 LLDC: Africa
@@ -163,8 +153,6 @@ Less developed: Oceania
 Low-income countries
 Lower-middle-income countries
 Marshall Islands
-Martinique
-Mayotte
 Melanesia
 Micronesia
 Micronesia (Fed. States of)
@@ -200,8 +188,6 @@ Organization of Petroleum Exporting countries (OPEC)
 Organization of the Islamic Conference (OIC)
 Palau
 Polynesia
-Puerto Rico
-Republic of Moldova
 Réunion
 SIDS Atlantic, and Indian Ocean, Mediterranean and South China Sea (AIMS)
 SIDS Caribbean
@@ -224,7 +210,6 @@ Southern Asia
 Southern Common Market (MERCOSUR)
 Southern Europe
 Sub-Saharan Africa
-Taiwan
 Tokelau
 Tonga
 Turkmenistan
@@ -322,7 +307,6 @@ United States Virgin Islands
 United States of America (and dependencies)
 Upper-middle-income countries
 Vanuatu
-Viet Nam
 WB region: East Asia and Pacific (excluding high income)
 WB region: Europe and Central Asia (excluding high income)
 WB region: Latin America and Caribbean (excluding high income)
