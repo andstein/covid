@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 alias node=/Users/andreassteiner/.nvm/versions/node/v12.6.0/bin/node
 
 [ "$(node -v | sed -e's/v\([0-9]*\).*/\1/')" -ge 12 ] || {

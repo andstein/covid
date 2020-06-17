@@ -13,3 +13,9 @@ optionally only generate last X days for quicker compilation: `python3 update.py
 [Svelte]: https://svelte.dev/
 [d3]: https://d3js.org/
 
+### crontab
+
+Update automatically on server using crontab.
+
+1. copy `covid.sh` and modify according to your installation
+2. `crontab -e` : `0 0 * * * /bin/bash /home/git/cron/covid.sh`
