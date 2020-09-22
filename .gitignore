@@ -1,5 +1,6 @@
 /inputs/COVID-19
 /node_modules/
+/output/bydate.json
 /public/build/
 
 .DS_Store
