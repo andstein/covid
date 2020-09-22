@@ -5,6 +5,7 @@
 
   export let graphs = []
   export let normalize = false
+  export let uselog = true
   export let date_index
   let filter = ''
 
@@ -225,7 +226,11 @@
 <div class="controls">
   <label>
     <input type=checkbox bind:checked={normalize}>
-    Normalize numbers
+    Normalize
+  </label>
+  <label>
+    <input type=checkbox bind:checked={uselog}>
+    Logarithmic
   </label>
   <input bind:value={filter} placeholder="pin on top" />
   <button

@@ -30,14 +30,15 @@
 
   export let graphs = []
   export let normalize = false
+  export let uselog = true
 
-  $: data = graphs.map(g => get(normalize, g.name, g.col))
-  $: max = normalize ? 100 : Math.max.apply(null,
+  $: data = graphs.map(g => get(normalize, uselog, g.name, g.col))
+  $: max = Math.max.apply(null,
     data.map(vs => Math.max.apply(null, vs.map(v => v.value)))
-  )
+  ) + 0 * normalize
   $: min = normalize ? 1e-5 : 1
   $: x = d3.scaleTime().domain([date0, date1]).range([0, width])
-  $: y = d3.scaleLog().domain([min, max]).range([height, 0])
+  $: y = (uselog ? d3.scaleLog() : d3.scaleLinear()).domain([min, max]).range([height, 0])
   $: dx = x(new Date(2020, 0, 1)) - x(new Date(2020, 0, 0))
   $: cursx = x(new Date(bydate[date_index].date))
 
@@ -72,7 +73,7 @@
     }
     return value
   }
-  function get(normalize, name, col) {
+  function get(normalize, uselog, name, col) {
     return bydate.map(({date, data}) => ({
       date: parseDate(date),
       value: or_zero(normed(normalize, data, name, col))
