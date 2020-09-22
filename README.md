@@ -2,6 +2,7 @@
 
 Some COVID-19 stats, showing data from [CSSEGISandData] with [Svelte] and [d3].
 
+0. download data : `cd inputs && git clone https://github.com/CSSEGISandData/COVID-19`
 1. update data : `cd inputs/COVID-19 && git pull`
 2. regenerate json : `python3 udpate.py`
 3. start devel server : `yarn dev`
