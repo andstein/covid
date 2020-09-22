@@ -16,6 +16,6 @@ GIT_DIR="${SRC}" git --work-tree=. checkout -f master
 $PYTHON update.py
 
 npm install
-npm run build
+NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 cp -R public/* $DST/
