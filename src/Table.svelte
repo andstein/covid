@@ -17,7 +17,7 @@
 
   let i18n = true
   let countries = true
-  let states = true
+  let states = false
   let counties = false
 
   const srccols = [
@@ -55,7 +55,7 @@
   }
   const selectable = new Set(srccols.concat(derived).filter(
     col => col !== 'pop'))
-  const prio1 = new Set(['name', 'confirmed', 'deaths', 'fatality'])
+  const prio1 = new Set(['name', 'active', 'new', 'deaths'])
   const prio2 = new Set(['pop'])
   const prio3 = new Set(srccols.concat(derived).filter(
     col => !prio1.has(col) && !prio2.has(col)))
