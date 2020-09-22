@@ -184,6 +184,7 @@ for prev, cur in zip(data[:-1], data[1:]):
         for col, dcol in (('confirmed', 'new'),):
             cur[k][dcol] = cur[k][col] - prev[k][col]
 print('')
+os.makedirs('output')
 json.dump(data, open('output/bydate.json', 'w'), indent=2)
 
 keys1 = set(pop.keys())
