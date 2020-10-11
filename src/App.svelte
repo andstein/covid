@@ -1,12 +1,12 @@
 <script>
   import Table from './Table.svelte'
   import Graph from './Graph.svelte'
-  import bydate from '../output/bydate.json'
+  import info from '../output/info.json'
 
   let graphs = []
   let normalize = false
   let uselog = true
-  let date_index = bydate.length - 1
+  let date_index = info['dates'].length - 1
 
 </script>
 

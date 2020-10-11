@@ -140,6 +140,7 @@ def append(d, k, v):
 
 
 print('reading timeseries')
+keys = {}
 for path in glob.glob(os.path.join(DAILY_REPORTS_DIR, '*.csv')):
     date = path.split('/')[-1].split('.')[0]
     date = datetime.datetime.strptime(date, '%m-%d-%Y')
@@ -169,9 +170,11 @@ for path in glob.glob(os.path.join(DAILY_REPORTS_DIR, '*.csv')):
         append(d, 'World', dict(level=level, **ns))
 
     data[date] = {k: rollup(v) for k, v in d.items()}
-    for k, v in data[date].items():
-        v['pop'] = pop.get(k)
+    for key in data[date]:
+        if key not in keys:
+            keys[key] = {'population': pop.get(key), 'level': level}
 
+# postfix
 data = [
     dict(date=date, data=d)
     for date, d in sorted(data.items())
@@ -183,10 +186,33 @@ for prev, cur in zip(data[:-1], data[1:]):
             continue
         for col, dcol in (('confirmed', 'new'),):
             cur[k][dcol] = cur[k][col] - prev[k][col]
+
+# Main output.
 print('')
 os.makedirs('output', exist_ok=True)
-json.dump(data, open('output/bydate.json', 'w'), indent=2)
+cols = ['new', 'recovered', 'deaths']
+with open('output/info.json', 'w') as f:
+    sorted_keys = sorted(keys)
+    json.dump(dict(
+        dates=[row['date'] for row in data],
+        rows=sorted_keys,
+        cols=cols,
+        population=[keys[k].get('population') for k in sorted_keys],
+        levels=[keys[k].get('level') for k in sorted_keys],
+    ), f)
+with open('output/table.json', 'w') as f:
+    json.dump([
+        [
+            [
+                row['data'][key].get(col)
+                for col in cols
+            ] if key in row['data'] else None
+            for key in sorted(keys)
+        ]
+        for row in data
+    ], f)
 
+# Diagnostic output to find mis-spelled countries.
 keys1 = set(pop.keys())
 keys2 = set([k for row in data for k, d in row['data'].items()
              if d['level'] == 'country'])

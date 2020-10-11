@@ -1,7 +1,6 @@
 
 <script>
-  import { derivers, parseDate } from './utils.js'
-  import bydate from '../output/bydate.json'
+  import { parseDate, table, info, colidx, rowidx } from './utils.js'
 
   export let graphs = []
   export let normalize = false
@@ -9,7 +8,7 @@
   export let date_index
   let filter = ''
 
-  const dates = sorted(bydate.map(row => row.date))
+  const dates = sorted(info['dates'])
   let sortby = 'confirmed'
   let sortmul = -1
   let digits = 3
@@ -21,21 +20,9 @@
   let states = false
   let counties = false
 
-  const srccols = [
-    'confirmed',
-    'new',
-    'active',
-    'recovered',
-    'deaths',
-    'pop',
-  ]
-  const derived = [
-    'fatality',
-//    'fatality2',
-  ]
+  const numbercols = info.cols
   const alwayspct = new Set([
     'fatality',
-    'fatality2',
   ])
   const neverpct = new Set([
     'pop',
@@ -49,16 +36,14 @@
     'deaths',
     'fatality',
   ])
-  const numbercols  = [...srccols, ...derived]
   function colname(col) {
     return col === 'pop' ? 'Population' :
       col.substr(0, 1).toLocaleUpperCase() + col.substr(1)
   }
-  const selectable = new Set(srccols.concat(derived).filter(
-    col => col !== 'pop'))
+  const selectable = new Set(numbercols.filter(col => col !== 'pop'))
   const prio1 = new Set(['name', 'active', 'new', 'deaths'])
   const prio2 = new Set(['pop'])
-  const prio3 = new Set(srccols.concat(derived).filter(
+  const prio3 = new Set(numbercols.filter(
     col => !prio1.has(col) && !prio2.has(col)))
   function colprio(col) {
     return {
@@ -79,7 +64,7 @@
   }
 
   $: rows = torows(
-    bydate[date_index].data,
+    table[date_index],
     filter,
     sortby, sortmul, normalize,
     i18n, countries, states, counties)
@@ -101,14 +86,23 @@
   }
 
   function torows(
-      d,
+      t,
       filter,
       sortby, sortmul, normalize,
       i18n, countries, states, counties) {
+    const t0 = new Date().getTime()
     const sums = {}
     const res = filter.split(/\s+/g).filter(s => s).map(s => new RegExp(s, 'i'))
-    let rows = Object.keys(d).map(name => ({
-      name, ...d[name], pinned: matches_any(name, res)
+    const tocols = (name, values) => {
+      const d = Object.fromEntries(values.map((value, idx) => [
+        info.cols[idx], value
+      ]))
+      d.pop = info.population[rowidx[name]]
+      d.level = info.levels[rowidx[name]]
+      return d
+    }
+    let rows = info.rows.map((name, idx) => ({
+      name, ...tocols(name, t[idx]), pinned: matches_any(name, res)
     })).filter(d => (
       (!normalize || d.pop) && (
         (i18n && d.level === 'i18n') ||
@@ -116,14 +110,11 @@
         (states && d.level === 'state') ||
         (counties && d.level === 'county')
       )
-    )).map(row => {
-      derived.forEach(col => row[col] = derivers[col](row))
-      return row
-    })
+    ))
     if (normalize) {
       rows = rows.filter(row => row.pop).map(row => {
         const d = {...row}
-        srccols.forEach(col => nevernorm.has(col) ? row[col] : (
+        numbercols.forEach(col => nevernorm.has(col) ? row[col] : (
           d[col] = row[col] / row.pop))
         return d
       })
@@ -132,6 +123,7 @@
       a.pinned, b.pinned,
       sortmul * comparators(sortby)(a[sortby], b[sortby])
     ))
+    console.log('torows.dt', new Date().getTime() - t0)
     return rows
   }
 
@@ -232,7 +224,7 @@
     <input type=checkbox bind:checked={uselog}>
     Logarithmic
   </label>
-  <input bind:value={filter} placeholder="pin on top" />
+  <input bind:value={filter} placeholder="pin on top" type="text" />
   <button
     on:click={() => {graphs = []; filter = ''}}
     >
@@ -240,6 +232,7 @@
   </button>
 </div>
 
+<!-- svelte-ignore component-name-lowercase -->
 <table>
   <thead>
     <tr>
@@ -283,9 +276,10 @@
 <div class="pagination">
   Show page
   {#each pages as page}
-    <a class:sel="{pagenum === page}" on:click={() => pagenum = page}>
-      {page + 1}
-    </a>
+  <!-- svelte-ignore a11y-missing-attribute -->
+  <a class:sel="{pagenum === page}" on:click={() => pagenum = page}>
+    {page + 1}
+  </a>
   {/each}
 </div>
 
@@ -310,9 +304,6 @@
 </div>
 
 <style>
-  .hidden {
-    display: none;
-  }
   .datesel {
     display: flex;
   }
@@ -327,7 +318,7 @@
     display: flex;
     justify-content: space-around;
   }
-  .controls input[input=text] {
+  .controls input[type=text] {
     width: 40%;
   }
   .pagination {
@@ -372,9 +363,9 @@
   thead .desc:after {
     content: '▼';
   }
-  td {
-    /* padding: 0 1rem; */
-  }
+  /* td {
+    padding: 0 1rem;
+  } */
   td.name {
     font-weight: bold;
     max-width: 140px;

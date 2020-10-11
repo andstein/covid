@@ -9,15 +9,14 @@
 
   import * as d3 from 'd3'
 
-  import { derivers, parseDate } from './utils.js'
-  import bydate from '../output/bydate.json'
+  import { parseDate, table, info, colidx, rowidx } from './utils.js'
 
   export let date_index
 
-  const date0 = parseDate(bydate[0].date)
-  const date1 = parseDate(bydate[bydate.length - 1].date)
+  const date0 = parseDate(info.dates[0])
+  const date1 = parseDate(info.dates[info.dates.length - 1])
 
-  const times = bydate.map((d, idx) => [new Date(d.date).getTime(), idx])
+  const times = info.dates.map((date, idx) => [new Date(date).getTime(), idx])
   times.sort()
   const times_bisect = (t, i, j) => {
     if (j - i < 2) {
@@ -26,7 +25,6 @@
     const ij = (i + j) >> 1
     return t <= times[ij][0] ? times_bisect(t, i, ij) : times_bisect(t, ij, j)
   }
-
 
   export let graphs = []
   export let normalize = false
@@ -40,7 +38,7 @@
   $: x = d3.scaleTime().domain([date0, date1]).range([0, width])
   $: y = (uselog ? d3.scaleLog() : d3.scaleLinear()).domain([min, max]).range([height, 0])
   $: dx = x(new Date(2020, 0, 1)) - x(new Date(2020, 0, 0))
-  $: cursx = x(new Date(bydate[date_index].date))
+  $: cursx = x(new Date(info.dates[date_index]))
 
   let width = 700
   let height = 300
@@ -55,29 +53,23 @@
   let yaxis
   let curs
 
-  function or_zero(x) {
-    return Number.isFinite(x) ? x : 0
-  }
-  function normed(normalize, data, name, col) {
-    const row = data[name] || {}
-    if (derivers.hasOwnProperty(col)) {
-      return 100 * derivers[col](row)
-    }
-    const value = row[col]
+  function normed(data, name, col, normalize) {
+    const row = data[rowidx[name]] || {}
+    const value = row[colidx[col]]
     if (normalize) {
-      const pop = (data[name] || {pop: 0}).pop
+      const pop = info.population[rowidx[name]] || 0
       if (pop) {
         return 100 * value / pop
       }
-      return 0
+      return undefined
     }
     return value
   }
   function get(normalize, uselog, name, col) {
-    return bydate.map(({date, data}) => ({
+    return info.dates.map((date, idx) => ({
       date: parseDate(date),
-      value: or_zero(normed(normalize, data, name, col))
-    })).filter(v => v.value > 0)
+      value: normed(table[idx], name, col, normalize)
+    })).filter(d => d.value)
   }
 
   beforeUpdate(() => {
@@ -93,7 +85,6 @@
         const [mx, my] = d3.mouse(svg)
         const [t, idx] = times[times_bisect(x.invert(mx - left), 0, times.length - 1)]
         date_index = idx
-        console.log(date_index)
       })
       // .on('mouseleave', () => curs.setAttribute('opacity', 0))
       // .on('mouseenter', () => curs.setAttribute('opacity', 1))
