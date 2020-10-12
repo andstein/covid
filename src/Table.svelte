@@ -86,7 +86,6 @@
       filter,
       sortby, sortmul, normalize,
       i18n, countries, ch_states, us_states, counties) {
-    const t0 = new Date().getTime()
     const sums = {}
     const res = filter.split(/\s+/g).filter(s => s).map(s => new RegExp(s, 'i'))
     const tocols = (name, values) => {
@@ -120,7 +119,6 @@
       a.pinned, b.pinned,
       sortmul * comparators(sortby)(a[sortby], b[sortby])
     ))
-    console.log('torows.dt', new Date().getTime() - t0)
     return rows
   }
 

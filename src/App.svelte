@@ -25,7 +25,7 @@
   <a target="_blank" href="https://github.com/CSSEGISandData/COVID-19">CSSEGISandData</a>
   </p>
 
-  <div class="nonessential">
+  <div>
     <Graph {graphs} {normalize} {uselog} bind:date_index />
   </div>
   <Table bind:graphs bind:normalize bind:date_index bind:uselog />
