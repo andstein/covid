@@ -9,6 +9,8 @@ function fillnulls(table) {
   )))
 }
 
+export const nevernorm = new Set(['pop', 'fatality'])
+
 import table_ from '../output/table.json'
 import info_ from '../output/info.json'
 

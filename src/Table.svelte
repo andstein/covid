@@ -1,6 +1,6 @@
 
 <script>
-  import { parseDate, table, info, colidx, rowidx } from './utils.js'
+  import { parseDate, table, info, rowidx, nevernorm } from './utils.js'
 
   export let graphs = []
   export let normalize = false
@@ -22,15 +22,8 @@
   let counties = false
 
   const numbercols = ['pop', 'new', 'new7d', 'confirmed', 'deaths', 'fatality']
-  const alwayspct = new Set([
-    'fatality',
-  ])
-  const neverpct = new Set([
-    'pop',
-  ])
-  const nevernorm = new Set([
-    'pop',
-  ])
+  const alwayspct = new Set(['fatality'])
+  const neverpct = new Set(['pop'])
   function colname(col) {
       if (col === 'pop') return 'Population'
       if (col === 'new7d') return 'New/7d'

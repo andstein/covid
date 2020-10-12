@@ -9,7 +9,7 @@
 
   import * as d3 from 'd3'
 
-  import { parseDate, table, info, colidx, rowidx } from './utils.js'
+  import { parseDate, table, info, colidx, rowidx, nevernorm } from './utils.js'
 
   export let date_index
 
@@ -55,13 +55,11 @@
 
   function normed(data, name, col, normalize) {
     const row = data[rowidx[name]] || {}
-    const value = row[colidx[col]]
-    if (normalize) {
+    let value = row[colidx[col]]
+    if (normalize && !nevernorm.has(col)) {
       const pop = info.population[rowidx[name]] || 0
-      if (pop) {
-        return 100 * value / pop
-      }
-      return undefined
+      if (!pop) return
+      value = 100 * value / pop
     }
     return value
   }
