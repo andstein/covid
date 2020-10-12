@@ -23,6 +23,8 @@
   |
   data from
   <a target="_blank" href="https://github.com/CSSEGISandData/COVID-19">CSSEGISandData</a>
+  and
+  <a target="_blank" href="https://github.com/openZH/covid_19">openZH</a>
   </p>
 
   <div>
