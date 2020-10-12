@@ -12,6 +12,7 @@ cd covid
 GIT_DIR="${SRC}" git --work-tree=. checkout -f master
 
 (cd inputs/COVID-19 && git pull)
+(cd inputs/covid_19 && git pull)
 
 $PYTHON update.py
 
