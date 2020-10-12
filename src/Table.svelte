@@ -17,10 +17,11 @@
 
   let i18n = true
   let countries = true
-  let states = false
+  let us_states = false
+  let ch_states = false
   let counties = false
 
-  const numbercols = info.cols
+  const numbercols = ['pop', 'new', 'new7d', 'confirmed', 'deaths', 'fatality']
   const alwayspct = new Set([
     'fatality',
   ])
@@ -30,19 +31,14 @@
   const nevernorm = new Set([
     'pop',
   ])
-  const essential = new Set([
-    'name',
-    'confirmed',
-    'deaths',
-    'fatality',
-  ])
   function colname(col) {
-    return col === 'pop' ? 'Population' :
-      col.substr(0, 1).toLocaleUpperCase() + col.substr(1)
+      if (col === 'pop') return 'Population'
+      if (col === 'new7d') return 'New/7d'
+      return col.substr(0, 1).toLocaleUpperCase() + col.substr(1)
   }
   const selectable = new Set(numbercols.filter(col => col !== 'pop'))
-  const prio1 = new Set(['name', 'active', 'new', 'deaths'])
-  const prio2 = new Set(['pop'])
+  const prio1 = new Set(['name', 'new7d', 'confirmed', 'fatality'])
+  const prio2 = new Set(['new', 'deaths'])
   const prio3 = new Set(numbercols.filter(
     col => !prio1.has(col) && !prio2.has(col)))
   function colprio(col) {
@@ -67,7 +63,7 @@
     table[date_index],
     filter,
     sortby, sortmul, normalize,
-    i18n, countries, states, counties)
+    i18n, countries, ch_states, us_states, counties)
   $: pages = Array.from(Array(Math.ceil(rows.length / pagesize)).keys())
   $: page = rows.slice(pagenum * pagesize, (pagenum + 1) * pagesize)
 
@@ -89,7 +85,7 @@
       t,
       filter,
       sortby, sortmul, normalize,
-      i18n, countries, states, counties) {
+      i18n, countries, ch_states, us_states, counties) {
     const t0 = new Date().getTime()
     const sums = {}
     const res = filter.split(/\s+/g).filter(s => s).map(s => new RegExp(s, 'i'))
@@ -103,11 +99,12 @@
     }
     let rows = info.rows.map((name, idx) => ({
       name, ...tocols(name, t[idx]), pinned: matches_any(name, res)
-    })).filter(d => (
+    })).filter((d, idx) => (
       (!normalize || d.pop) && (
         (i18n && d.level === 'i18n') ||
         (countries && d.level === 'country') ||
-        (states && d.level === 'state') ||
+        (ch_states && d.level === 'state' && info.rows[idx].substr(0, 3) == 'CH,') ||
+        (us_states && d.level === 'state' && info.rows[idx].substr(0, 3) == 'US,') ||
         (counties && d.level === 'county')
       )
     ))
@@ -294,12 +291,12 @@
     Countries
   </label>
   <label>
-    <input type=checkbox bind:checked={states}>
-    States
+    <input type=checkbox bind:checked={us_states}>
+    US States
   </label>
   <label>
-    <input type=checkbox bind:checked={counties}>
-    Counties
+    <input type=checkbox bind:checked={ch_states}>
+    CH States
   </label>
 </div>
 

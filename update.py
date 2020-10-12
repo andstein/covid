@@ -55,6 +55,10 @@ countries = {
     'West Bank and Gaza': 'Palestine',
     'occupied Palestinian territory': 'Palestine',
 }
+country_states = (
+    'US', 'Germany', 'Spain',
+    # 'Russia', 'China', 'Japan', ...
+)
 
 
 def country(name):
@@ -130,6 +134,15 @@ with open('inputs/us_states_pop.csv') as f:
         k, v = line[:idx], line[idx+1:]
         pop[f'US, {k}'] = int(v.replace(',', '').replace('"', '').replace('\n', ''))
 
+with open('inputs/ch_states_pop.csv') as f:
+    for i, line in enumerate(f):
+        line = line.strip()
+        if i == 0:
+            assert line == 'canton,population'
+            continue
+        canton, population = line.split(',')
+        pop[f'CH, {canton}'] = int(population)
+
 data = dict()
 
 
@@ -137,7 +150,6 @@ def append(d, k, v):
     if k not in d:
         d[k] = []
     d[k].append(v)
-
 
 print('reading timeseries')
 keys = {}
@@ -163,34 +175,58 @@ for path in glob.glob(os.path.join(DAILY_REPORTS_DIR, '*.csv')):
         if row.province_state:
             level = 'state'
             name = ', '.join([row.country_region, row.province_state])
-            append(d, name, dict(level=level, **ns))
+            if row.country_region in country_states:
+                append(d, name, dict(level=level, **ns))
         level = 'country'
         append(d, country(row.country_region), dict(level=level, **ns))
         level = 'i18n'
         append(d, 'World', dict(level=level, **ns))
 
     data[date] = {k: rollup(v) for k, v in d.items()}
-    for key in data[date]:
+    for key, d in data[date].items():
         if key not in keys:
-            keys[key] = {'population': pop.get(key), 'level': level}
+            keys[key] = {'population': pop.get(key), 'level': d['level']}
+
+ch_cols = dict(
+    ncumul_conf='confirmed',
+    ncumul_deceased='deaths',
+    ncumul_released='recovered',
+)
+for row in CsvFile('inputs/covid_19/COVID19_Fallzahlen_CH_total_v2.csv'):
+    date = row.get('date')
+    canton = row.get('abbreviation_canton_and_fl')
+    if canton == 'FL': continue
+    key = f'CH, {canton}'
+    if date not in data:
+        continue
+        # print(f'Adding CH-only date: {date}')
+        # data[date] = {}
+    data[date][key] = d = {
+        v: row.get(k, lambda x: int(x) if x else 0)
+        for k, v in ch_cols.items()
+    }
+    if key not in keys:
+        keys[key] = {'population': pop.get(key), 'level': 'state'}
 
 # postfix
 data = [
     dict(date=date, data=d)
     for date, d in sorted(data.items())
 ]
-for prev, cur in zip(data[:-1], data[1:]):
-    prev, cur = prev['data'], cur['data']
-    for k in cur:
-        if k not in prev:
-            continue
-        for col, dcol in (('confirmed', 'new'),):
-            cur[k][dcol] = cur[k][col] - prev[k][col]
+last = {}
+for row in data:
+    for k, d in row['data'].items():
+        for col in ('recovered', 'confirmed', 'deaths'):
+            if k not in last: last[k] = {}
+            dcol = dict(confirmed='new').get(col, f'd{col}')
+            now, before = d.get(col, 0), last[k].get(col, 0)
+            d[dcol] = max(now - before, 0)
+            last[k][col] = max(now, before)
 
 # Main output.
 print('')
 os.makedirs('output', exist_ok=True)
-cols = ['new', 'recovered', 'deaths']
+cols = ['new', 'drecovered', 'ddeaths']
 with open('output/info.json', 'w') as f:
     sorted_keys = sorted(keys)
     json.dump(dict(
@@ -199,7 +235,7 @@ with open('output/info.json', 'w') as f:
         cols=cols,
         population=[keys[k].get('population') for k in sorted_keys],
         levels=[keys[k].get('level') for k in sorted_keys],
-    ), f)
+    ), f, separators=(',', ':'))
 with open('output/table.json', 'w') as f:
     json.dump([
         [
@@ -210,12 +246,12 @@ with open('output/table.json', 'w') as f:
             for key in sorted(keys)
         ]
         for row in data
-    ], f)
+    ], f, separators=(',', ':'))
 
 # Diagnostic output to find mis-spelled countries.
 keys1 = set(pop.keys())
 keys2 = set([k for row in data for k, d in row['data'].items()
-             if d['level'] == 'country'])
+             if d.get('level') == 'country'])
 open('output/poponly.txt', 'w').write(
     '\n'.join(sorted(keys1.difference(keys2))))
 open('output/covonly.txt', 'w').write(

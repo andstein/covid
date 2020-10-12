@@ -1,3 +1,5 @@
+<meta charset="UTF-8">
+
 <script>
   import Table from './Table.svelte'
   import Graph from './Graph.svelte'
