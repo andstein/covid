@@ -22,6 +22,7 @@ content
 
 ## TODO
 
+- zoom graph correctly on mobile
 - store state in URL
 - interrupt lines instead of going to zero when data is missing
 
