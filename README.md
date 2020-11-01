@@ -22,9 +22,14 @@ content
 
 ## TODO
 
-- zoom graph correctly on mobile
+- resize graph correctly on mobile
 - store state in URL
 - interrupt lines instead of going to zero when data is missing
+- legend
+- extrapolation
+- zoom
+- relative X axis (e.g. when confirmed=10)
+- pin by mouseclick
 
 ## data format
 
